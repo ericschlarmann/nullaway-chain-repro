@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'net.ltgt.errorprone' version '5.1.1'
+}
+
+repositories { mavenCentral() }
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
+
+dependencies {
+    implementation 'org.jspecify:jspecify:1.0.0'
+    errorprone 'com.google.errorprone:error_prone_core:2.50.0'
+    errorprone "com.uber.nullaway:nullaway:${findProperty('nullawayVersion') ?: '0.14.2'}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.fork = true
+    options.forkOptions.jvmArgs = ['-Xss32m']
+    options.errorprone {
+        disableAllChecks = true
+        option('NullAway:OnlyNullMarked')
+        option('NullAway:JSpecifyMode')
+        error('NullAway')
+    }
+}
